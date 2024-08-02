@@ -32,7 +32,7 @@ if [ "$code" != "0" ]; then
 fi
 
 set +e
-tfVersion=$(tflint --version)
+tflintVersion=$(tflint --version)
 code=$?
 set -e
 if [ "$code" != "0" ]; then
