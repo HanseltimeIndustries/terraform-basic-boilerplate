@@ -1,0 +1,43 @@
+name: Test IAC
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  testing:
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Terraform v1.9.3
+        uses: hashicorp/setup-Terraform@v3
+        with:
+          terraform_version: 1.9.3
+          terraform_wrapper: true
+      - name: Setup Terraform version
+        run: terraform --version
+      - name: Setup Terraform wrapper path
+        run: which terraform
+      - name: Setup Terragrunt v0.38.4
+        run: |
+          sudo wget -q -O /bin/terragrunt "https://github.com/gruntwork-io/terragrunt/releases/download/v0.64.5/terragrunt_linux_amd64"
+          sudo chmod +x /bin/terragrunt
+          terragrunt -v
+      - name: Setup tflint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+      - name: hcl-fmt
+        run: |
+          make fmt-hcl-check
+      - name: tf-fmt
+        run: |
+          make fmt-tf-check
+      - name: lint
+        run: |
+          make tflint
+      # TODO: terraform plan and aws assume
+

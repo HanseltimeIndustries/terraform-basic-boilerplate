@@ -1,0 +1,2 @@
+s3_backend_bucket: hanseltime-tf-state
+aws_region: us-east-1

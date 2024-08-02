@@ -1,0 +1,5 @@
+name: Deploy IAC
+jobs:
+  # Install AWS cli
+  # Install terraform cli
+  # Assume the role that can access the backing store
