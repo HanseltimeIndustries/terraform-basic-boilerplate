@@ -3,21 +3,21 @@ terraform {
 }
 
 variable "role_arns" {
-    type = list(string)
+  type = list(string)
 }
 
 locals {
-  transformed = [for arn in var.role_arns: 
+  transformed = [for arn in var.role_arns :
     replace(
-        replace(arn, ":role/", ":assumed-role/"),
-        ":iam:",
-        ":sts:"
-        )
-    ]
+      replace(arn, ":role/", ":assumed-role/"),
+      ":iam:",
+      ":sts:"
+    )
+  ]
   # Since sessions can be anything, we add the wild card
-  with_wildcard = [for arn in local.transformed: "${arn}/*"]
+  with_wildcard = [for arn in local.transformed : "${arn}/*"]
 }
 
 output "wildcard_arns" {
-    value = local.with_wildcard
+  value = local.with_wildcard
 }

@@ -19,26 +19,25 @@ data "aws_caller_identity" "current" {}
 # This imports the auto-generated terragrunt s3 bucket for management after
 #  Important - we tighten up security on the bucket as a part of this management
 import {
-    to = aws_s3_bucket.tf_state_s3
-    id = var.s3_backend_bucket_name
+  to = aws_s3_bucket.tf_state_s3
+  id = var.s3_backend_bucket_name
 }
 
 module "tf_s3_state_roles" {
   source = "../modules/bootstrap_roles"
 
   aws_account_id = data.aws_caller_identity.current.account_id
-  aws_region = var.aws_region
 }
 
 module "tf_assumed_role_arns" {
   source = "../modules/get_assume_role_like"
 
   role_arns = concat([for backend in module.tf_s3_state_roles.s3_state_backends : backend.apply_role.arn],
-        [for backend in module.tf_s3_state_roles.s3_state_backends : backend.plan_role.arn],
-        [
-          module.tf_s3_state_roles.triage_user_role.arn,
-          module.tf_s3_state_roles.s3_state_management_role.arn,
-        ],)
+    [for backend in module.tf_s3_state_roles.s3_state_backends : backend.plan_role.arn],
+    [
+      module.tf_s3_state_roles.triage_user_role.arn,
+      module.tf_s3_state_roles.s3_state_management_role.arn,
+  ], )
 }
 
 
@@ -113,7 +112,7 @@ data "aws_iam_policy_document" "bucket_restrict_policy" {
   // Allow the triage user role and self-managing role full access (minus delete) (since it has to self-manage)
   statement {
     actions = [
-    "s3:*"
+      "s3:*"
     ]
     resources = [
       aws_s3_bucket.tf_state_s3.arn,
@@ -145,7 +144,7 @@ data "aws_iam_policy_document" "bucket_restrict_policy" {
       ]
     }
     condition {
-      test = "StringNotLike"
+      test     = "StringNotLike"
       variable = "aws:PrincipalArn"
       values = concat(
         // Explicit roles
@@ -166,7 +165,7 @@ resource "aws_s3_bucket_policy" "s3_bucket_policy" {
   bucket = aws_s3_bucket.tf_state_s3.id
 
   # Apply this policy AFTER the aws roles have been provisioned that can interact with them
-  depends_on = [ 
+  depends_on = [
     aws_iam_role_policy_attachment.tf_state_admin_policy_self_manage,
     aws_iam_role_policy_attachment.tf_state_admin_policy_triage,
   ]
@@ -200,14 +199,14 @@ data "aws_iam_policy_document" "plan_policy" {
 resource "aws_iam_policy" "plan_policy" {
   count = length(module.tf_s3_state_roles.s3_state_backends)
 
-  name = "${module.tf_s3_state_roles.s3_state_backends[count.index].plan_role.name}TfPlan"
+  name   = "${module.tf_s3_state_roles.s3_state_backends[count.index].plan_role.name}TfPlan"
   policy = data.aws_iam_policy_document.plan_policy.json
 }
 
 resource "aws_iam_role_policy_attachment" "plan_policy" {
   count = length(module.tf_s3_state_roles.s3_state_backends)
 
-  role = module.tf_s3_state_roles.s3_state_backends[count.index].plan_role.name
+  role       = module.tf_s3_state_roles.s3_state_backends[count.index].plan_role.name
   policy_arn = aws_iam_policy.plan_policy[count.index].arn
 }
 
@@ -237,14 +236,14 @@ data "aws_iam_policy_document" "apply_policy" {
 resource "aws_iam_policy" "apply_policy" {
   count = length(module.tf_s3_state_roles.s3_state_backends)
 
-  name = "${module.tf_s3_state_roles.s3_state_backends[count.index].apply_role.name}TfApply"
+  name   = "${module.tf_s3_state_roles.s3_state_backends[count.index].apply_role.name}TfApply"
   policy = data.aws_iam_policy_document.apply_policy.json
 }
 
 resource "aws_iam_role_policy_attachment" "apply_policy" {
   count = length(module.tf_s3_state_roles.s3_state_backends)
 
-  role = module.tf_s3_state_roles.s3_state_backends[count.index].apply_role.name
+  role       = module.tf_s3_state_roles.s3_state_backends[count.index].apply_role.name
   policy_arn = aws_iam_policy.apply_policy[count.index].arn
 }
 
@@ -262,17 +261,17 @@ data "aws_iam_policy_document" "tf_state_admin_policy" {
 }
 
 resource "aws_iam_policy" "tf_state_admin_policy" {
-  name = "${aws_s3_bucket.tf_state_s3.bucket}Admin"
+  name   = "${aws_s3_bucket.tf_state_s3.bucket}Admin"
   policy = data.aws_iam_policy_document.tf_state_admin_policy.json
 }
 
 resource "aws_iam_role_policy_attachment" "tf_state_admin_policy_triage" {
-  role = module.tf_s3_state_roles.triage_user_role.name
+  role       = module.tf_s3_state_roles.triage_user_role.name
   policy_arn = aws_iam_policy.tf_state_admin_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "tf_state_admin_policy_self_manage" {
-  role = module.tf_s3_state_roles.s3_state_management_role.name
+  role       = module.tf_s3_state_roles.s3_state_management_role.name
   policy_arn = aws_iam_policy.tf_state_admin_policy.arn
 }
 
@@ -287,11 +286,11 @@ data "aws_iam_policy_document" "bootstrap_admin_policy" {
 }
 
 resource "aws_iam_policy" "tf_state_admin_policy_self_manage_roles" {
-  name = "${aws_s3_bucket.tf_state_s3.bucket}RoleAdmin"
+  name   = "${aws_s3_bucket.tf_state_s3.bucket}RoleAdmin"
   policy = data.aws_iam_policy_document.bootstrap_admin_policy.json
 }
 
 resource "aws_iam_role_policy_attachment" "tf_state_admin_policy_self_manage_roles" {
-  role = module.tf_s3_state_roles.s3_state_management_role.name
+  role       = module.tf_s3_state_roles.s3_state_management_role.name
   policy_arn = aws_iam_policy.tf_state_admin_policy_self_manage_roles.arn
 }

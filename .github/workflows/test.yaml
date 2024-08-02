@@ -30,9 +30,12 @@ jobs:
       - name: Setup tflint
         run: |
           curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
-      - name: fmt
+      - name: hcl-fmt
         run: |
           make fmt-hcl-check
+      - name: tf-fmt
+        run: |
+          make fmt-tf-check
       - name: lint
         run: |
           make tflint

@@ -15,7 +15,7 @@ data "aws_iam_policy_document" "triage_assume_policy" {
     actions = [
       "sts:AssumeRole",
       "sts:TagSession",
-      ]
+    ]
 
     principals {
       type        = "AWS"
@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "ci_apply_assume_policy" {
     actions = [
       "sts:AssumeRole",
       "sts:TagSession",
-      ]
+    ]
 
     principals {
       type        = "AWS"
@@ -54,7 +54,7 @@ data "aws_iam_policy_document" "ci_plan_assume_policy" {
     actions = [
       "sts:AssumeRole",
       "sts:TagSession",
-      ]
+    ]
 
     principals {
       type        = "AWS"
@@ -64,21 +64,21 @@ data "aws_iam_policy_document" "ci_plan_assume_policy" {
 }
 
 resource "aws_iam_role" "triage_user_role" {
-  name         = "tf-triage-user-role"
+  name               = "tf-triage-user-role"
   assume_role_policy = data.aws_iam_policy_document.triage_assume_policy.json
   // We don't need to add any more to this role since we only need to deploy backend right now
   // In the future, we could add policies for other backends, etc.
 }
 
 resource "aws_iam_role" "main_apply_role" {
-  name         = "main-iac-apply-role"
+  name               = "main-iac-apply-role"
   assume_role_policy = data.aws_iam_policy_document.ci_apply_assume_policy.json
   // TODO - if we were managing this as a central repo, we would attach policies that allow the rest of the
   // deployment as well
 }
 
 resource "aws_iam_role" "main_plan_role" {
-  name         = "main-iac-plan-role"
+  name               = "main-iac-plan-role"
   assume_role_policy = data.aws_iam_policy_document.ci_plan_assume_policy.json
   // TODO - if we were managing this as a central repo, we would attach policies that allow the rest of the
   // deployment as well

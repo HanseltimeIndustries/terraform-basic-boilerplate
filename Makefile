@@ -9,3 +9,9 @@ tflint:
 
 tflint-fix:
 	tflint --chdir ./terraform --recursive
+
+fmt-tf:
+	cd ./terraform && terraform fmt -recursive
+
+fmt-tf-check:
+	cd ./terraform && terraform fmt -recursive -check
