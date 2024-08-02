@@ -1,0 +1,34 @@
+name: Test IAC
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  testing:
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Terraform v1.9.3
+        uses: hashicorp/setup-Terraform@v3
+        with:
+          terraform_version: 1.9.3
+          terraform_wrapper: true
+      - name: Setup Terraform version
+        run: terraform --version
+      - name: Setup Terraform wrapper path
+        run: which terraform
+      - name: Setup Terragrunt and other tools
+        run: |
+          ./bin/setup-tools.sh
+      - name: fmt
+        run: |
+          make fmt-hcl-check
+      - name: lint
+        run: |
+          make tflint
+      # TODO: terraform plan and aws assume
+
